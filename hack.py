@@ -15,22 +15,19 @@ address = (host, port)
 
 client_socket.connect(address)
 
-alpha = string.ascii_lowercase
-digits = string.digits
-chain = list(itertools.chain(alpha, digits))
+file = open("passwords.txt", "r")
+passwords = file.read().splitlines()
+file.close()
 
 found_pass = "Not found"
-for i in itertools.count(1, 1):
-    for pas_tuple in list(itertools.product(chain, repeat=i)):
-        pas = ''.join(pas_tuple)
+
+for password in passwords:
+    for pas in map(''.join, itertools.product(*((c.upper(), c.lower()) for c in password))):
         client_socket.send(pas.encode())
         response = client_socket.recv(1024)
         response = response.decode()
         if response == "Connection success!":
             found_pass = pas
-            break
-        if response == "Too many attempt":
-            found_pass = "Too many attempt"
             break
     else:
         continue
